@@ -1,9 +1,13 @@
 class Database{
     constructor(mongodbClient){
-        this.mongodbClient = mongodbClient
-        this.database = "yassin-web2"
-        this.connectionString = `mongodb+srv://yassin:yassin123@cluster0.1ttwg.mongodb.net/${this.database}?retryWrites=true&w=majority`;
-        this.collectionName = "dogs"
+        const databaseName = process.env.databaseName;
+        const collectionName = process.env.collectionName;
+        const username = process.env.name;
+        const password = process.env.password;
+        this.mongodbClient = mongodbClient;
+        this.database = databaseName;
+        this.connectionString = `mongodb+srv://${username}:${password}@cluster0.1ttwg.mongodb.net/${this.database}?retryWrites=true&w=majority`;
+        this.collectionName = collectionName;
     }
 
     async createConnection(){
@@ -19,7 +23,11 @@ class Database{
         const db = client.db(this.database).collection(this.collectionName)
         const user = await db.findOne({name: userName})
         client.close()
-        return user.dogs
+        if (user){
+            return user.dogs;
+        }else{
+            return []
+        }
     }
 
     async addUser(user){
@@ -52,20 +60,12 @@ class Database{
         return result
     }
     
-    // async getDog(id){
-    //     let client = await this.createConnection()
-    //     const db = client.db(this.database).collection(this.collectionName)
-    //     let dog = await db.findOne({_id: id})
-    //     client.close()
-    //     return dog
-    // }
-    
-    async deleteDog(username, dogid){
+    async deleteDog(username, dogName){
         let user = await this.findUser(username)
         let client = await this.createConnection()
         const db = client.db(this.database).collection(this.collectionName)
         if (user != null){
-            let result = await db.updateOne({_id: user._id}, {$pull: {dogs: {id: dogid}}})
+            let result = await db.updateOne({_id: user._id}, {$pull: {dogs: {dogName: dogName}}})
             console.log(result)
             client.close()
             return result
@@ -74,9 +74,25 @@ class Database{
         return undefined
     }
     
-    async updateDog(username,id,newDog){
-        await this.deleteDog(username,id)
-        await this.addDog(username,newDog)
+    async updateDog(username,name,newDog){
+        let user = await this.findUser(username);
+        let client = await this.createConnection();
+        const db = client.db(this.database).collection(this.collectionName);
+        if (user != null){
+            let result = await db.updateOne(
+                {
+                    _id:user._id,
+                    'dogs.dogName':name
+                }
+                ,{
+                    $set: 
+                    {
+                        "dogs.$.dogName":newDog.dogName
+                    }
+                });
+            console.log(result);
+        }
+        return true;
     }
 }
 

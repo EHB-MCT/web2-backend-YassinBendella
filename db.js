@@ -53,6 +53,9 @@ class Database{
         if (!dog){
             return undefined;
         }
+        if (dog.dogName == ''){
+            return undefined
+        }
         let foundUser = await this.findUser(user)
         if (foundUser == null){
             await this.addUser({name: user, dogs: []})

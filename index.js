@@ -41,7 +41,7 @@ app.post("/api/insert", async (req,res) =>{
     if (insertedDog){
         res.send(insertedDog)
     }else{
-        res.status(400).send("invalid request, dog is undefined")
+        res.status(400).send("invalid request, dog is undefined, or dog has no name")
     }
 })
 

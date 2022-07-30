@@ -6,7 +6,7 @@ import cors from 'cors'
 import { config } from 'dotenv'
 config();
 const app = express()
-const port = 9000
+const port = process.env.PORT || 9000
 const db = new Database(mongodb.MongoClient)
 app.use(bodyparser.json())
 app.use(cors())

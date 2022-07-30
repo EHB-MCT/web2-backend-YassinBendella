@@ -19,10 +19,7 @@ class Database{
     }
 
     async getDogs(userName){
-        let client = await this.createConnection()
-        const db = client.db(this.database).collection(this.collectionName)
-        const user = await db.findOne({name: userName})
-        client.close()
+        const user = await this.findUser(userName);
         if (user){
             return user.dogs;
         }else{
@@ -31,6 +28,9 @@ class Database{
     }
 
     async addUser(user){
+        if (user == ''){
+            return undefined;
+        }
         let client = await this.createConnection()
         const db = client.db(this.database).collection(this.collectionName)
         const addedUser = await db.insertOne(user)
@@ -39,6 +39,9 @@ class Database{
     }
 
     async findUser(user){
+        if (user == ''){
+            return undefined;
+        }
         let client = await this.createConnection()
         const db = client.db(this.database).collection(this.collectionName)
         const foundUser = await db.findOne({name: user})
@@ -47,12 +50,14 @@ class Database{
     }
     
     async addDog(user,dog){
+        if (!dog){
+            return undefined;
+        }
         let foundUser = await this.findUser(user)
         if (foundUser == null){
             await this.addUser({name: user, dogs: []})
             foundUser = await this.findUser(user)
         }
-        console.log(foundUser)
         let client = await this.createConnection()
         const db = client.db(this.database).collection(this.collectionName)
         let result = await db.updateOne({_id: foundUser._id},{$push: {dogs: dog}})
@@ -61,6 +66,9 @@ class Database{
     }
     
     async deleteDog(username, dogName){
+        if (dogName == ''){
+            return undefined;
+        }
         let user = await this.findUser(username)
         let client = await this.createConnection()
         const db = client.db(this.database).collection(this.collectionName)
@@ -75,6 +83,9 @@ class Database{
     }
     
     async updateDog(username,name,newDog){
+        if (!newDog){
+            return undefined;
+        }
         let user = await this.findUser(username);
         let client = await this.createConnection();
         const db = client.db(this.database).collection(this.collectionName);
@@ -90,7 +101,6 @@ class Database{
                         "dogs.$.dogName":newDog.dogName
                     }
                 });
-            console.log(result);
         }
         return true;
     }

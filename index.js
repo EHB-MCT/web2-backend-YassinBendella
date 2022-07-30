@@ -22,7 +22,11 @@ app.get("/",(req,res)=>{
 app.get("/api/dogs/:user", async (req,res)=>{
     let user = req.params.user
     let dogs = await db.getDogs(user)
-    res.send(dogs)
+    if (dogs){
+        res.send(dogs)
+    }else{
+        res.status(400).send("invalid request, username is empty")
+    }
 })
 
 app.post("/api/insert", async (req,res) =>{
@@ -34,7 +38,11 @@ app.post("/api/insert", async (req,res) =>{
     let user = body.username
     console.log(user);
     let insertedDog = await db.addDog(user,dog)
-    res.send(insertedDog)
+    if (insertedDog){
+        res.send(insertedDog)
+    }else{
+        res.status(400).send("invalid request, dog is undefined")
+    }
 })
 
 app.put("/api/update", async (req,res)=>{
@@ -44,7 +52,11 @@ app.put("/api/update", async (req,res)=>{
     let oldname = body.oldname;
     let updatedDog = await db.updateDog(user, oldname, dog)
     console.log(updatedDog);
-    res.send(updatedDog)
+    if (updatedDog){
+        res.send(updatedDog)
+    }else{
+        res.status(400).send("invalid request, newdog is undefined")
+    }
 })
 
 app.delete("/api/delete", async (req,res) =>{
@@ -52,6 +64,10 @@ app.delete("/api/delete", async (req,res) =>{
     let user = body.username
     let dogName = body.dogname
     let result = await db.deleteDog(user,dogName)
-    res.send(result)
+    if (result){
+        res.send(result);
+    }else{
+        res.status(400).send("invalid request, dogname is empty")
+    }
 })
 
